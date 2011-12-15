@@ -1,12 +1,5 @@
-__author__="twist"
-
-# HTTP client v1.0 beta
-# 1. HTTP/HTTPS support
-# 2. GET/POST requests support
-# 3. Redirects following and status codes registering (301,302,404, etc.)
-# 4. Cookie processing
-# 5. User Agent changing
-# 6. Timeout processing with "retry" possibility
+# -*- coding:utf-8 -*-
+__author__="twistsm"
 
 import urllib
 import urllib2
@@ -94,7 +87,7 @@ class SmartRedirectHandler(urllib2.HTTPRedirectHandler):
         result.status = code
         return result
 
-class HTTPclient:
+class PylHttp:
     """ Simple light-weight HTTP client """
     def __init__(self, proxy=None,
                 user_agent='Mozilla/5.0 (Windows; U; Windows NT 6.1; ru; rv:1.9.2.10) Gecko/20100914 Firefox/3.6.10',
@@ -247,3 +240,8 @@ class HTTPclient:
         }
 
         return responseDict
+
+if __name__ == "__main__":
+   bot = PylHttp()
+   result = bot.request('http://www.google.com/')
+   print (result['code'])
