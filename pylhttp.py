@@ -224,11 +224,12 @@ class PylHttpResponse(object):
 
 class PylHttp(object):
     """ Simple light-weight HTTP client """
-    def __init__(self, proxy=None, ip_address=None, user_agent=None, timeout=20, tries=1):
+    def __init__(self, proxy=None, ip_address=None, user_agent=None, timeout=20, savehistory=False):
         """Init HTTP client"""
         if not user_agent:
             user_agent = self.get_user_agent()
 
+        self.savehistory = savehistory
         self.history = []
         self.tries = tries
         self.timeout = timeout        
@@ -313,7 +314,8 @@ class PylHttp(object):
             self.response = PylHttpResponse(url=url, request_time=request_time, 
                             redirect_handler=self.smartRedirectHandler, error=e)
         # Memorize browsing data
-        self.history.append({'request': request, 'response': self.response})
+        if self.savehistory:
+            self.history.append({'request': request, 'response': self.response})
         return self.response
 
 
