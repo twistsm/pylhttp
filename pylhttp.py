@@ -3,17 +3,19 @@ __author__="Anton Gorunov"
 """
 Python Light HTTP client.
 
-Main features:
-1. Simplicity! PylHttp().request('http://www.google.com/')
-2. GET and POST requests
-3. Redirect handler
-4. GZIP
-5. Cookie
+Main features and advantages:
+1. Simplicity! All hard thing done by me :-)
+2. GET and POST requests support
+3. Redirect handler and memorizer
+4. GZIP support implemented -> faster way to get your webpages
+5. Cookie processing in current session
 6. Custom headers
 7. Proxy or custom IP interface
-8. Browsing history and Referer if needed
-9. Smart timeout
-10. Response info
+8. Browsing history and Referer if needed (download a lot of pages without extra code)
+9. Usable Response information
+10. Can be asynchonous easy with gevent monkey patch. Or you can use it with threads.
+
+All examples you can find at the end of this file in __main__ section
 """
 
 import urllib
@@ -222,7 +224,7 @@ class PylHttpResponse(object):
 
 
 
-class PylHttp(object):
+class Client(object):
     """ Simple light-weight HTTP client """
     def __init__(self, proxy=None, ip_address=None, user_agent=None, timeout=20, savehistory=False):
         """Init HTTP client"""
@@ -231,7 +233,6 @@ class PylHttp(object):
 
         self.savehistory = savehistory
         self.history = []
-        self.tries = tries
         self.timeout = timeout        
         self.user_agent = user_agent
         self.cookiejar = cookielib.CookieJar()
@@ -320,12 +321,49 @@ class PylHttp(object):
 
 
 if __name__ == "__main__":
+    # 1. Simplicity! All hard thing done by me :-)
+    html = Client().request('http://www.google.com.ua/').content
+    print html
+    # You can get all properties of response by this call:
+    response_object = Client().request('http://www.google.com.ua/')
+    # Client().request method returns PylHttpResponse object
+    print response_object.dict.keys()
+    '''
+    [
+        'url',               - requested url 
+        'status',            - status code of your url -> 200/404/301/302, anything else
+        'realurl',           - redirected url
+        'rucode',            - realurl status code -> 200/404/301/302, anything else
+        'charset',           - charset from headers 
+        'error_message',     - your custom error message. 'timeout' for example
+        'content',           - html content decoded to unicode
+        'headers',           - dictionary of response headers
+        'duration',          - page load duration
+        'type',              - content type of the page from headers
+        'response',          - response object from urllib2
+        'error',             - error object from urllib2 (URLError instance) 
+        'size'               - content size calculated in symbols
+        'dict',              - all this properties in dictionary-like style 
+    ]
+    '''
+
+    #2. GET and POST requests support
+    #3. Redirect handler and memorizer
+    #4. GZIP support implemented -> faster way to get your webpages
+    #5. Cookie processing in current session
+    #6. Custom headers
+    #7. Proxy or custom IP interface
+    #8. Browsing history and Referer if needed (download a lot of pages without extra code)
+    #9. Usable Response information
+    #10. Can be asynchonous easy with gevent monkey patch. Or you can use it with threads.
+
+
     '''
     import gevent 
     import gevent.monkey
     gevent.monkey.patch_socket()
     
-    bot = PylHttp()
+    bot = Client()
     threads = [
         gevent.spawn(bot.request, 'http://www.google.com.ua/'),
         gevent.spawn(bot.request, 'http://www.google.com/'),
