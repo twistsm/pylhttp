@@ -248,13 +248,16 @@ class Client(object):
         self.cookiejar = cookielib.CookieJar()
         self.smartRedirectHandler = SmartRedirectHandler()
         self.proxy = self.makeproxy(proxy)
-        self.proxyHandler = urllib2.ProxyHandler(proxy)
+        self.proxyHandler = urllib2.ProxyHandler(self.proxy)
+        self.bindableHttpHandler = BindableHTTPHandler(ip_address)
+        self.httpsHandler = urllib2.HTTPSHandler()
+        self.cookiesHandler = urllib2.HTTPCookieProcessor(self.cookiejar)
 
         self.opener = urllib2.build_opener(
-            urllib2.HTTPCookieProcessor(self.cookiejar),
+            self.cookiesHandler,
             self.smartRedirectHandler,
-            BindableHTTPHandler(ip_address),
-            urllib2.HTTPSHandler(),
+            self.bindableHttpHandler,
+            self.httpsHandler,
             self.proxyHandler
         )
 
@@ -315,6 +318,17 @@ class Client(object):
         elif referer:
             request.add_header('Referer', referer)
 
+        if proxy:
+            self.proxyHandler = urllib2.ProxyHandler(self.makeproxy(proxy))
+
+            self.opener = urllib2.build_opener(
+                self.cookiesHandler,
+                self.smartRedirectHandler,
+                self.bindableHttpHandler,
+                self.httpsHandler,
+                self.proxyHandler
+            )
+
         request_time = time.time()
 
         self.beforeCallback(self)
@@ -337,6 +351,11 @@ class Client(object):
 
 
 if __name__ == "__main__":
+    bot = Client()
+    html = bot.request(url='http://my-ip-address.com/', proxy='62.243.224.180:1080').content
+    print html
+
+    """
     # FOA sorry for my English - I'm not native speaker!
 
     # All hard thing done by me :-) Now your bots may be happy.
@@ -467,3 +486,4 @@ if __name__ == "__main__":
     bot.beforeCallback = before
     bot.afterCallback = after
     bot.request('http://google.com')
+    """
