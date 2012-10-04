@@ -226,11 +226,21 @@ class PylHttpResponse(object):
 
 class Client(object):
     """ Simple light-weight HTTP client """
+
+    @staticmethod
+    def beforeCallback(this):
+        pass
+
+    @staticmethod
+    def afterCallback(this):
+        pass
+
     def __init__(self, proxy=None, ip_address=None, user_agent=None, timeout=20, savehistory=False):
         """Init HTTP client"""
         if not user_agent:
             user_agent = self.get_user_agent()
 
+        self.current_url = ''
         self.savehistory = savehistory
         self.history = []
         self.timeout = timeout
@@ -276,6 +286,7 @@ class Client(object):
     def request(self, url, params=None, timeout=None, proxy=None, referer=None, headers=None):
         """ Main request function
             Returns html or empty content """
+        self.current_url = url
         if not headers:
             headers = []
         if timeout:
@@ -306,6 +317,7 @@ class Client(object):
 
         request_time = time.time()
 
+        self.beforeCallback(self)
         try:
             """ Trying to open URL """
             response = self.opener.open(request, timeout=current_timeout)
@@ -314,9 +326,13 @@ class Client(object):
         except urllib2.URLError as e:
             self.response = PylHttpResponse(url=url, request_time=request_time,
                             redirect_handler=self.smartRedirectHandler, error=e)
+
         # Memorize browsing data
         if self.savehistory:
             self.history.append({'request': request, 'response': self.response})
+        self.afterCallback(self)
+
+        self.current_url = ''
         return self.response
 
 
@@ -432,3 +448,22 @@ if __name__ == "__main__":
         print "%s : %s --> %s : %s === %s %s" % (response.status, response.url, response.rucode,
                             response.realurl,  response.content[:15]+"...", response.duration)
 
+    # If you want to have some additional pre/post processing behaviour, you can add custom callbacks:
+    def before(this):
+        # here you have access to whole HTTP Client (this) object before request
+        print 'Now i will make request'
+        print this.current_url
+        print this.user_agent
+
+
+    def after(this):
+        # here you have access to whole HTTP Client (this) object after request
+        print 'Request completed: response status codes:'
+        print this.response.status
+        print this.response.rucode
+
+    bot  = Client()
+    # Note, that callbacks are staticmethods.
+    bot.beforeCallback = before
+    bot.afterCallback = after
+    bot.request('http://google.com')
