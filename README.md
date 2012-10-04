@@ -111,3 +111,22 @@ This is light one-file python http client.
         print "%s : %s --> %s : %s === %s %s" % (response.status, response.url, response.rucode,
                             response.realurl,  response.content[:15]+"...", response.duration)
 
+    # If you want to have some additional pre/post processing behaviour, you can add custom callbacks:
+    def before(this):
+        # here you have access to whole HTTP Client (this) object before request
+        print 'Now i will make request'
+        print this.current_url
+        print this.user_agent
+
+
+    def after(this):
+        # here you have access to whole HTTP Client (this) object after request
+        print 'Request completed: response status codes:'
+        print this.response.status
+        print this.response.rucode
+
+    bot  = Client()
+    # Note, that callbacks are staticmethods.
+    bot.beforeCallback = before
+    bot.afterCallback = after
+    bot.request('http://google.com')

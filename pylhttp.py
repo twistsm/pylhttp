@@ -351,11 +351,6 @@ class Client(object):
 
 
 if __name__ == "__main__":
-    bot = Client()
-    html = bot.request(url='http://my-ip-address.com/', proxy='62.243.224.180:1080').content
-    print html
-
-    """
     # FOA sorry for my English - I'm not native speaker!
 
     # All hard thing done by me :-) Now your bots may be happy.
@@ -486,4 +481,4 @@ if __name__ == "__main__":
     bot.beforeCallback = before
     bot.afterCallback = after
     bot.request('http://google.com')
-    """
+
