@@ -32,6 +32,7 @@ import pprint
 pp = pprint.PrettyPrinter(indent=4).pprint
 
 
+# <-- Ability to bind on your custom IP address
 class BindableHTTPConnection(httplib.HTTPConnection):
     def connect(self):
         """Connect to the host and port specified in __init__."""
@@ -62,65 +63,22 @@ class BindableHTTPHandler(urllib2.HTTPHandler):
 
     def http_open(self, req):
         return self.do_open(BindableHTTPConnectionFactory(self.customip), req)
+# -->
 
-'''
-class HTTPRedirectHandler(urllib2.HTTPRedirectHandler):
+
+class SmartRedirectHandler(urllib2.HTTPRedirectHandler):
+    statusCode = ''
+    redirections = []
+
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         newreq = urllib2.HTTPRedirectHandler.redirect_request(self,
             req, fp, code, msg, headers, newurl)
         if newreq is not None:
-            self.redirections.append(newreq.get_full_url())
+            self.redirections.append((code, newreq.get_full_url()))
         return newreq
 
-url = 'http://google.com'
-
-h = HTTPRedirectHandler()
-h.max_redirections = 100
-h.redirections = [url]
-opener = urllib2.build_opener(h)
-response = opener.open(url)
-print h.redirections
-# -> ['http://google.com', 'http://www.google.com/', 'http://google.com.ua/']
-'''
-
-
-class SmartRedirectHandler(urllib2.HTTPRedirectHandler):
-    """This class handles redirects and memorize status code"""
-    def __init__(self):
-        self.statusCode = ''
-
-    def http_error_301(self, req, fp, code, msg, headers):
-        self.statusCode = code
-        result = urllib2.HTTPRedirectHandler.http_error_301(
-            self, req, fp, code, msg, headers
-        )
-        result.status = code
-        return result
-
-    def http_error_302(self, req, fp, code, msg, headers):
-        self.statusCode = code
-        result = urllib2.HTTPRedirectHandler.http_error_302(
-            self, req, fp, code, msg, headers
-        )
-        result.status = code
-        return result
-
-    def http_error_303(self, req, fp, code, msg, headers):
-        self.statusCode = code
-        result = urllib2.HTTPRedirectHandler.http_error_302(
-            self, req, fp, code, msg, headers
-        )
-        result.status = code
-        return result
-
-    def http_error_307(self, req, fp, code, msg, headers):
-        self.statusCode = code
-        result = urllib2.HTTPRedirectHandler.http_error_302(
-            self, req, fp, code, msg, headers
-        )
-        result.status = code
-        return result
-
+    def clear_redirect_history(self):
+        self.redirections = []
 
 
 class PylHttpResponse(object):
@@ -309,6 +267,7 @@ class Client(object):
     def request(self, url, params=None, timeout=None, proxy=None, referer=None, headers=None):
         """ Main request function
             Returns html or empty content """
+        self.smartRedirectHandler.clear_redirect_history()
         self.current_url = url
         if not headers:
             headers = []
@@ -375,8 +334,12 @@ if __name__ == "__main__":
 
     # All hard thing done by me :-) Now your bots may be happy.
 
-    html = Client().request('http://www.yahoo.com/').content
+    bot = Client()
+    html = bot.request('http://google.com/').content
+    html = bot.request('http://google.com/').content
     print html
+    print bot.smartRedirectHandler.redirections
+
     """
     # Or you can do something like that:
     bot = Client(savehistory=True)
