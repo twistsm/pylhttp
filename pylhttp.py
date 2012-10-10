@@ -63,6 +63,26 @@ class BindableHTTPHandler(urllib2.HTTPHandler):
     def http_open(self, req):
         return self.do_open(BindableHTTPConnectionFactory(self.customip), req)
 
+'''
+class HTTPRedirectHandler(urllib2.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        newreq = urllib2.HTTPRedirectHandler.redirect_request(self,
+            req, fp, code, msg, headers, newurl)
+        if newreq is not None:
+            self.redirections.append(newreq.get_full_url())
+        return newreq
+
+url = 'http://google.com'
+
+h = HTTPRedirectHandler()
+h.max_redirections = 100
+h.redirections = [url]
+opener = urllib2.build_opener(h)
+response = opener.open(url)
+print h.redirections
+# -> ['http://google.com', 'http://www.google.com/', 'http://google.com.ua/']
+'''
+
 
 class SmartRedirectHandler(urllib2.HTTPRedirectHandler):
     """This class handles redirects and memorize status code"""
@@ -355,9 +375,9 @@ if __name__ == "__main__":
 
     # All hard thing done by me :-) Now your bots may be happy.
 
-    html = Client().request('http://www.google.com.ua/').content
+    html = Client().request('http://www.yahoo.com/').content
     print html
-
+    """
     # Or you can do something like that:
     bot = Client(savehistory=True)
     response = bot.request('http://google.com')
@@ -481,4 +501,4 @@ if __name__ == "__main__":
     bot.beforeCallback = before
     bot.afterCallback = after
     bot.request('http://google.com')
-
+    """
