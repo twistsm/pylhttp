@@ -100,6 +100,7 @@ class PylHttpResponse(object):
         self.url = url
         self.response = response
         self.error = error
+        self.redirect_handler = redirect_handler
         self.duration = time.time() - request_time
         if self.response and not self.error:
             self.processCorrectResponse()
@@ -142,8 +143,8 @@ class PylHttpResponse(object):
                 self.content = self.error.read()
 
             """ Identify status codes of redirects and errors """
-            if self.url != self.error.url and redirect_handler.statusCode:
-                self.status = redirect_handler.statusCode
+            if self.url != self.error.url and self.redirect_handler.statusCode:
+                self.status = self.redirect_handler.statusCode
             else:
                 self.status = self.error.code
             self.size = len(self.content)
