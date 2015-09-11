@@ -1,10 +1,8 @@
-# -*- coding:utf-8 -*-
-__author__="Anton Gorunov"
 """
 Python Light HTTP client.
 
 Main features and advantages:
-1. Simplicity! All hard thing done by me :-)
+1. Simplicity! 
 2. GET and POST requests support
 3. Redirect handler and memorizer
 4. GZIP support implemented -> faster way to get your webpages
@@ -331,10 +329,6 @@ class Client(object):
 
 
 if __name__ == "__main__":
-    # FOA sorry for my English - I'm not native speaker!
-
-    # All hard thing done by me :-) Now your bots may be happy.
-
     bot = Client()
     html = bot.request('http://google.com/').content
     html = bot.request('http://google.com/').content

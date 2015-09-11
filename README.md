@@ -1,9 +1,4 @@
 This is light one-file python http client.
-    
-    # FOA sorry for my English - I'm not native speaker!
-
-    # All hard thing done by me :-) Now your bots may be happy.
-
     html = Client().request('http://www.google.com.ua/').content
     print html
 
